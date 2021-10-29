@@ -2,12 +2,12 @@
 https://docs.nestjs.com/modules
 */
 
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 @Module({
-    imports: [],
+    imports: [CacheModule.register()],
     controllers: [AuthController],
     providers: [AuthService],
 })

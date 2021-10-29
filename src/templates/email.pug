@@ -1,0 +1,29 @@
+doctype html
+html(lang='en')
+  head
+    style(type='text/css').
+      .head {
+        font-size: 20px; 
+        color: #333;
+        text-align: center;
+      }
+      .code{
+        font-size:50px;
+        background:#576CF0;
+        color:#FFF;
+        padding: 10px 20px;
+        border-radius: 20px;
+      }
+      .colLi{
+        padding: 15px 0;
+      }
+    title 感谢使用
+  body
+    .head
+      h1 验证码邮件.
+    #container.col
+      ul.colLi
+        li 用户：#{username} 您好
+        li
+          .code 验证码为：#{code}
+        li 请在5分钟内验证
