@@ -8,7 +8,7 @@ import { AppService } from './app.service';
 import { ConfigModule,ConfigService} from 'nestjs-config';
 import { MailerModule } from '@nestjs-modules/mailer';
 
-import * as redisStore from 'cache-manager-redis-store'
+// import * as redisStore from 'cache-manager-redis-store'
 // import { RedisModule,RedisService } from 'nestjs-redis';
 // import redisConfig  from './config/redis';
 // import { config } from 'rxjs';
