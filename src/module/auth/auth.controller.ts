@@ -2,8 +2,10 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Body, Controller, Get, HttpException, HttpStatus, CACHE_MANAGER, Post, Query, Inject } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, CACHE_MANAGER, Post, Query, Inject, Param } from '@nestjs/common';
+import { Hash } from 'crypto';
 import { from } from 'rxjs';
+import { RedisInstance } from 'src/database/redis';
 import { AuthService } from './auth.service';
 import { CreateCodeDto } from './dto/create.code.dto';
 // import { Cache } from 'cache-manager'
@@ -20,6 +22,18 @@ export class AuthController {
         this.authService.getCode(param);
     }
 
+    @Post('verifyCode')
+    verifyCode(@Query() {id}){
+        if(!id){
+            throw new HttpException(
+                {status:HttpStatus.BAD_REQUEST,message:'请输入验证码',error:'code is required.'},
+                HttpStatus.BAD_REQUEST
+            );
+        }
+        this.authService.verifyCode(id);
+    }
+
+
     @Get('get')
     getOne(@Query() {id} ): string{
         if(!id){
@@ -33,11 +47,14 @@ export class AuthController {
 
     @Post('setval')
     async setval(){
-        // const value = await this.cacheManager.get('rayjcr');
-
-        // await this.cacheManager.set('rayjcr', '888888',{ ttl: 0 });
-        // // await this
-        // console.log(value,'set_value');
+        const redis = await RedisInstance.initRedis('setvalFun',0);
+        // setex 需要带过期时间 s秒
+        // set 通用
+        // hmset 哈希列表
+        // sunionstore 并集并保留结果
+        await redis.setex('tempCode:rayjcr',200,'6677');
+        // await redis.set('tempCode', 'rayjcr');
+        // await redis.hmset("hosts");
         return '666'
     }
 

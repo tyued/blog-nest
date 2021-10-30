@@ -4,12 +4,13 @@ https://docs.nestjs.com/providers#services
 
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer'
+import { RedisInstance } from 'src/database/redis';
 
 @Injectable()
 export class AuthService {
     constructor(private readonly mailerService:MailerService){}
 
-    getCode(param): string{
+    async getCode(param): Promise<string>{
 
         // 产生6位数字的随机码
         const code = Math.random().toString().slice(-6);
@@ -28,13 +29,19 @@ export class AuthService {
                 code:code
             }
         }).then(()=>{
-
         }).catch(()=>{
             return 'Error'
         })
 
+        // console.log('把验证码存入redis.');
+        const redis = await RedisInstance.initRedis('getCode',0);
+        await redis.setex('tempCode:'+param.email, 600, code);
         // console.log(param)
         return 'OK'
+    }
+
+    verifyCode(id){
+        console.log('id='+id)
     }
 
 }
