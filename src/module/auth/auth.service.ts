@@ -2,13 +2,18 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer'
 import { RedisInstance } from 'src/database/redis';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from 'src/entity/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly mailerService:MailerService){}
+    constructor(private readonly mailerService:MailerService,
+        @InjectRepository(UserEntity) private readonly userRepository:Repository<UserEntity>    
+    ){}
 
     async getCode(param): Promise<string>{
 
@@ -35,13 +40,38 @@ export class AuthService {
 
         // console.log('把验证码存入redis.');
         const redis = await RedisInstance.initRedis('getCode',0);
-        await redis.setex('tempCode:'+param.email, 600, code);
+        await redis.setex('tempCode:'+param.email, 6000, code);
         // console.log(param)
         return 'OK'
     }
 
-    verifyCode(id){
-        console.log('id='+id)
+    async createUser(param){
+        let findOne = await this.userRepository.findOne({user_name:param.username});
+        // console.log(findOne,'findOne')
+        if(findOne){
+            return {status:false,data:'用户名已经被注册'}
+        }
+
+        let user = new UserEntity;
+        user.email = param.email;
+        user.user_name = param.username;
+        user.user_password = param.password;
+        user.create_time = new Date();
+        user.update_tiem = new Date();
+        let res = await this.userRepository.save(user);
+        return {status:true,data:res};
+    }
+
+    async verifyCode(Param){
+        console.log('id=',Param);
+        const redis = await RedisInstance.initRedis('verifyCode',0);
+        const code = await redis.get('tempCode:'+Param.email);
+        console.log(code,'code',Param.code,'param.code')
+        if(code===Param.code){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }

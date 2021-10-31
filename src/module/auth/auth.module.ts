@@ -3,6 +3,8 @@ https://docs.nestjs.com/modules
 */
 
 import { CacheModule, Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserEntity } from 'src/entity/user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 // import { RedisModule } from 'nestjs-redis'
@@ -16,7 +18,7 @@ import { AuthService } from './auth.service';
 /////   https://github.com/TimurRK/nestjs-example/blob/master/src/redis/redis.providers.ts
 //  看这文章
 @Module({
-    // imports: [RedisModule.register(options)],
+    imports: [TypeOrmModule.forFeature([UserEntity])],
     controllers: [AuthController],
     providers: [AuthService],
 })

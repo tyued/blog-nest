@@ -14,16 +14,16 @@ export class UserEntity {
     @Column()
     user_password: string;
 
-    @Column()
+    @Column({type:"varchar",default:null})
     user_phone: string;
 
-    @Column()
+    @Column({type:"varchar",default:null})
     user_avatar: string;
 
-    @Column()
+    @Column({type:"int",default:1})
     user_sex: number;
 
-    @Column()
+    @Column({type:"varchar",default:null})
     user_profile: string;
 
     @Column()

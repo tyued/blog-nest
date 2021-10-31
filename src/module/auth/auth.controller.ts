@@ -8,6 +8,8 @@ import { from } from 'rxjs';
 import { RedisInstance } from 'src/database/redis';
 import { AuthService } from './auth.service';
 import { CreateCodeDto } from './dto/create.code.dto';
+import { CreateUserDto } from './dto/create.user.dto';
+import { verifyCode } from './dto/verify.code.dto';
 // import { Cache } from 'cache-manager'
 
 @Controller('auth')
@@ -23,14 +25,36 @@ export class AuthController {
     }
 
     @Post('verifyCode')
-    verifyCode(@Query() {id}){
-        if(!id){
+    async verifyCode(@Body() param:verifyCode){
+        // if(!id){
+        //     throw new HttpException(
+        //         {status:HttpStatus.BAD_REQUEST,message:'请输入验证码',error:'code is required.'},
+        //         HttpStatus.BAD_REQUEST
+        //     );
+        // }
+        let res = await this.authService.verifyCode(param);
+        console.log(res,'res')
+        if(!res){
             throw new HttpException(
-                {status:HttpStatus.BAD_REQUEST,message:'请输入验证码',error:'code is required.'},
-                HttpStatus.BAD_REQUEST
+                {status: HttpStatus.BAD_REQUEST, message:'验证码验证失败',error:'verifyCode is error'},
+                HttpStatus.BAD_REQUEST,
             );
         }
-        this.authService.verifyCode(id);
+    }
+
+
+
+    @Post('create')
+    async createUser(@Body() param:CreateUserDto){
+        if(param.password!==param.repassword){
+            throw new HttpException({message:'密码和二次密码不同.'},HttpStatus.BAD_REQUEST)
+        }
+        let res = await this.authService.createUser(param);
+        if(res.status){
+            return res.data
+        }else{
+            throw new HttpException({message:res.data},HttpStatus.BAD_REQUEST);
+        }
     }
 
 

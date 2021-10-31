@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 
 import { ConfigModule,ConfigService} from 'nestjs-config';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 // import * as redisStore from 'cache-manager-redis-store'
 // import { RedisModule,RedisService } from 'nestjs-redis';
@@ -28,6 +29,10 @@ import { MailerModule } from '@nestjs-modules/mailer';
         MailerModule.forRootAsync({
             useFactory: (config:ConfigService) => config.get('email'),
             inject: [ConfigService]
+        }),
+        TypeOrmModule.forRootAsync({
+            useFactory:(config:ConfigService) => config.get('database'),
+            inject: [ConfigService], 
         }),
         // 设置redis的配置信息
         // CacheModule.register(),
