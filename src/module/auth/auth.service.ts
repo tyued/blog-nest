@@ -9,15 +9,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
 import { DeptEntity } from 'src/entity/dept.entity';
+import { JwtService } from '@nestjs/jwt'
 
 @Injectable()
 export class AuthService {
     constructor(private readonly mailerService:MailerService,
+        private readonly jwtService:JwtService,
         @InjectRepository(UserEntity) private readonly userRepository:Repository<UserEntity>    
     ){}
 
     /**
-     * 
+     * 根据邮箱地址获取随机验证码
+     * 发送邮件到指定邮箱
+     * 并把它已tempCode:xxx@qq.com 为key存入redis,定时300秒
      */
     async getCode(param): Promise<string>{
         // 产生6位数字的随机码
@@ -43,11 +47,16 @@ export class AuthService {
 
         // console.log('把验证码存入redis.');
         const redis = await RedisInstance.initRedis('getCode',0);
-        await redis.setex('tempCode:'+param.email, 6000, code);
+        await redis.setex('tempCode:'+param.email, 300, code);
         // console.log(param)
         return 'OK'
     }
 
+    /**
+     * 创建用户
+     * @param param 
+     * @returns 
+     */
     async createUser(param){
         let findOne = await this.userRepository.findOne({user_name:param.username});
         // console.log(findOne,'findOne')
@@ -65,11 +74,32 @@ export class AuthService {
         return {status:true,data:res};
     }
 
+    /**
+     * 根据ID获取用户信息
+     * @param id 
+     * @returns 
+     */
     async getOne(id){
         let res = await this.userRepository.findOne({where:{id:id}, relations:['deptInfo'],})
         return res;
     }
 
+    async validateUser(username: string, pass: string): Promise<any> {
+        
+    }
+
+    async login(username: string): Promise<any> {
+        const loginObj = {username: username}
+        return {
+            access_token: this.jwtService.sign(loginObj)
+        }
+    }
+
+    /**
+     * 匹配验证码是否正确，返回true or false;
+     * @param Param 
+     * @returns 
+     */
     async verifyCode(Param){
         // console.log('id=',Param);
         const redis = await RedisInstance.initRedis('verifyCode',0);

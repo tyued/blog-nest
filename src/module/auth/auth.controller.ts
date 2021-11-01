@@ -3,8 +3,6 @@ https://docs.nestjs.com/controllers#controllers
 */
 
 import { Body, Controller, Get, HttpException, HttpStatus, CACHE_MANAGER, Post, Query, Inject, Param } from '@nestjs/common';
-import { Hash } from 'crypto';
-import { from } from 'rxjs';
 import { RedisInstance } from 'src/database/redis';
 import { UserEntity } from 'src/entity/user.entity';
 import { AuthService } from './auth.service';
@@ -19,12 +17,20 @@ export class AuthController {
         private readonly authService:AuthService,
         // @Inject(CACHE_MANAGER) private cacheManager: Cache
     ){}
-
+    
+    /**
+     * 根据邮箱地址获取随机验证码
+     * @param param {email}
+     */
     @Post('getCode')
     getCode(@Body() param:CreateCodeDto){
         this.authService.getCode(param);
     }
 
+    /**
+     * 匹配邮箱和验证码,是否验证通过
+     * @param param {email,code}
+     */
     @Post('verifyCode')
     async verifyCode(@Body() param:verifyCode){
         // if(!id){
@@ -43,8 +49,11 @@ export class AuthController {
         }
     }
 
-
-
+    /**
+     * 设置用户名和密码,创建新用户
+     * @param param {email,username,password,repassword}
+     * @returns 
+     */
     @Post('create')
     async createUser(@Body() param:CreateUserDto){
         if(param.password!==param.repassword){
@@ -58,7 +67,11 @@ export class AuthController {
         }
     }
 
-
+    /**
+     * 根据用户id获取用户的具体信息
+     * @param param0 id
+     * @returns 
+     */
     @Get('get')
     async getOne(@Query() {id} ): Promise<UserEntity> {
         if(!id){
@@ -70,6 +83,17 @@ export class AuthController {
         return await this.authService.getOne(id);
     }
 
+    @Post('login')
+    async login(@Body() param){
+        // this.authService.login(param)
+        console.log(param);
+        return '3123123'
+    }
+
+    /**
+     * 测试测试。。。。。(*￣0￣)
+     * @returns 
+     */
     @Post('setval')
     async setval(){
         const redis = await RedisInstance.initRedis('setvalFun',0);
