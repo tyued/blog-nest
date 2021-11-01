@@ -1,8 +1,9 @@
 # compiled output
 /dist
 /node_modules
-/src/config
-
+/src/config/database.ts
+/src/config/email.ts
+/src/config/redis.ts
 # Logs
 logs
 *.log
