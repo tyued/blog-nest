@@ -1,7 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Exclude } from "class-transformer";
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { DeptEntity } from './dept.entity'
 
-@Entity({name:'user'})
-export class UserEntity {
+@Entity('user')
+export class UserEntity extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -11,7 +13,7 @@ export class UserEntity {
     @Column()
     user_name: string;
 
-    @Column()
+    @Exclude()
     user_password: string;
 
     @Column({type:"varchar",default:null})
@@ -31,4 +33,11 @@ export class UserEntity {
 
     @Column()
     update_tiem: Date;
+
+    @Column({type:'int',default:1,name:'dept_id'})
+    deptId: number;
+
+    @ManyToOne(type => DeptEntity, deptInfo => deptInfo.users)
+    @JoinColumn({name:'dept_id'})
+    deptInfo: DeptEntity;
 }

@@ -6,7 +6,10 @@ export class CreateUserDto{
     @IsNotEmpty({message:'注册邮箱不能为空'})
     readonly email: string;
     
-    @IsString()
+    // 如果有username就走规则，没有就跳过规则
+    @ValidateIf(obj=>{
+        return obj.username?true:false
+    })
     @Length(2,20,{message:'用户名长度2-20位'})
     readonly username: string;
 

@@ -6,6 +6,7 @@ import { Body, Controller, Get, HttpException, HttpStatus, CACHE_MANAGER, Post, 
 import { Hash } from 'crypto';
 import { from } from 'rxjs';
 import { RedisInstance } from 'src/database/redis';
+import { UserEntity } from 'src/entity/user.entity';
 import { AuthService } from './auth.service';
 import { CreateCodeDto } from './dto/create.code.dto';
 import { CreateUserDto } from './dto/create.user.dto';
@@ -59,14 +60,14 @@ export class AuthController {
 
 
     @Get('get')
-    getOne(@Query() {id} ): string{
+    async getOne(@Query() {id} ): Promise<UserEntity> {
         if(!id){
             throw new HttpException(
                 {status: HttpStatus.BAD_REQUEST, message:'请求必须传入参数 id',error:'id is required'},
                 HttpStatus.BAD_REQUEST,
             );
         }
-        return 'this.CatsService.getOne();'
+        return await this.authService.getOne(id);
     }
 
     @Post('setval')

@@ -8,6 +8,7 @@ import { RedisInstance } from 'src/database/redis';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/entity/user.entity';
 import { Repository } from 'typeorm';
+import { DeptEntity } from 'src/entity/dept.entity';
 
 @Injectable()
 export class AuthService {
@@ -15,8 +16,10 @@ export class AuthService {
         @InjectRepository(UserEntity) private readonly userRepository:Repository<UserEntity>    
     ){}
 
+    /**
+     * 
+     */
     async getCode(param): Promise<string>{
-
         // 产生6位数字的随机码
         const code = Math.random().toString().slice(-6);
         // console.log(param.email,code,'参数')
@@ -62,11 +65,16 @@ export class AuthService {
         return {status:true,data:res};
     }
 
+    async getOne(id){
+        let res = await this.userRepository.findOne({where:{id:id}, relations:['deptInfo'],})
+        return res;
+    }
+
     async verifyCode(Param){
-        console.log('id=',Param);
+        // console.log('id=',Param);
         const redis = await RedisInstance.initRedis('verifyCode',0);
         const code = await redis.get('tempCode:'+Param.email);
-        console.log(code,'code',Param.code,'param.code')
+        // console.log(code,'code',Param.code,'param.code')
         if(code===Param.code){
             return true;
         }else{
