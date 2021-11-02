@@ -7,7 +7,7 @@ import { MailerService } from '@nestjs-modules/mailer'
 import { RedisInstance } from 'src/database/redis';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/entity/user.entity';
-import { Repository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import { DeptEntity } from 'src/entity/dept.entity';
 import { JwtService } from '@nestjs/jwt'
 
@@ -80,18 +80,62 @@ export class AuthService {
      * @returns 
      */
     async getOne(id){
-        let res = await this.userRepository.findOne({where:{id:id}, relations:['deptInfo'],})
+        // let res = await this.userRepository.findOne({
+        //     select:['id','user_name','user_phone','user_sex','user_avatar'], 
+        //     relations:['dept_id'],
+        //     where:[{'id':id}], 
+        // });
+        let res = await this.userRepository.createQueryBuilder()
+            .leftJoinAndSelect(DeptEntity,'deptInfo','deptId = deptInfo.id')
+            .select(`email,user_name,user_phone,user_avatar,user_sex,user_profile,
+                    deptInfo.name as dept_name
+            `)
+            .where({'id':id})
+            // .getSql();
+            .getRawOne();
         return res;
     }
 
-    async validateUser(username: string, pass: string): Promise<any> {
-        
+    // async getPersonListByDept(){
+    //     let res = await getRepository(DeptEntity).createQueryBuilder('dept')
+    //     .leftJoinAndSelect(UserEntity,'userInfo','userInfo.deptId = dept.id')
+    //     .getRawMany();
+    //     return res
+    // }
+
+    /**
+     * 验证用户名密码
+     * @param username  
+     * @param password 
+     * @returns 
+     */
+    async validateUser(username: string, password: string): Promise<any> {
+        console.log(username,password,'这里是参数')
+        let res = await this.userRepository.findOne({where:{'user_name':username,'user_password':password}})
+        // .createQueryBuilder().where({'user_name':username,'user_password':password}).getSql();
+        // findOne({where:{'user_name':username,'user_password':password}})
+        // console.log(res,'res')
+        if(!res){
+            return {status:false,data:'用户名密码错误'}
+        }else{
+            return this.login(username);
+        }
+        return 
     }
 
+    /**
+     * 生成token,保持进redis 并返回token给前端
+     * @param username 
+     * @returns 
+     */
     async login(username: string): Promise<any> {
         const loginObj = {username: username}
+        const token = this.jwtService.sign(loginObj)
+        const redis = await RedisInstance.initRedis('getCode',0);
+        await redis.setex('tempCode:'+username, 600, token);
         return {
-            access_token: this.jwtService.sign(loginObj)
+            status: true,
+            access_token: token
         }
     }
 

@@ -13,6 +13,7 @@ export class LocalStrategy extends PassportStrategy(Strategy){
     async validate(username: string, password: string):Promise<any>{
         // AuthGuard('local')守卫通过后的返回对象
         // 目前是直接放行
+        console.log(username,password,'username,password')
         return {username,password}
         
         // 或者是去通过 authService里的验证方法确定用户名密码的匹配再返回

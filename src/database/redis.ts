@@ -9,7 +9,7 @@ export class RedisInstance {
     static async initRedis(method: string, db = 0) {
         const isExist = redisIndex.some(x => x===db);
         if(!isExist){
-            console.log(`[Redis ${db}] 来自 ${method} 方法调用，Redis 实例化了 ${++n}次`);
+            // console.log(`[Redis ${db}] 来自 ${method} 方法调用，Redis 实例化了 ${++n}次`);
             redisList[db] = new Redis({...redisConfig, db});
             redisIndex.push(db);
         }else{

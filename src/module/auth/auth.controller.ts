@@ -2,12 +2,14 @@
 https://docs.nestjs.com/controllers#controllers
 */
 
-import { Body, Controller, Get, HttpException, HttpStatus, CACHE_MANAGER, Post, Query, Inject, Param } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, CACHE_MANAGER, Post, Query, Inject, Param, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { RedisInstance } from 'src/database/redis';
 import { UserEntity } from 'src/entity/user.entity';
 import { AuthService } from './auth.service';
 import { CreateCodeDto } from './dto/create.code.dto';
 import { CreateUserDto } from './dto/create.user.dto';
+import { login } from './dto/login.dto';
 import { verifyCode } from './dto/verify.code.dto';
 // import { Cache } from 'cache-manager'
 
@@ -61,7 +63,7 @@ export class AuthController {
         }
         let res = await this.authService.createUser(param);
         if(res.status){
-            return res.data
+            return "创建用户成功"
         }else{
             throw new HttpException({message:res.data},HttpStatus.BAD_REQUEST);
         }
@@ -72,8 +74,9 @@ export class AuthController {
      * @param param0 id
      * @returns 
      */
+    @UseGuards(AuthGuard('jwt'))
     @Get('get')
-    async getOne(@Query() {id} ): Promise<UserEntity> {
+    async getOne(@Query() {id} ): Promise<any> {
         if(!id){
             throw new HttpException(
                 {status: HttpStatus.BAD_REQUEST, message:'请求必须传入参数 id',error:'id is required'},
@@ -83,28 +86,38 @@ export class AuthController {
         return await this.authService.getOne(id);
     }
 
+    // 本地守卫个人感觉没必要,直接放心去service里验证登录返回用户名jwt即可
+    // @UseGuards(AuthGuard('local'))
     @Post('login')
-    async login(@Body() param){
+    async login(@Body() param: login){
         // this.authService.login(param)
-        console.log(param);
-        return '3123123'
+        let res =  await this.authService.validateUser(param.username,param.password);
+        if(!res.status){
+            throw new HttpException(
+                {status: HttpStatus.BAD_REQUEST, message:res.data,error:'password is error'},
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        
+        return res.access_token;
     }
 
     /**
      * 测试测试。。。。。(*￣0￣)
      * @returns 
      */
-    @Post('setval')
-    async setval(){
-        const redis = await RedisInstance.initRedis('setvalFun',0);
+    @Get('deptPerson')
+    async getPersonListByDept(){
+        // return this.authService.getPersonListByDept();
+        // const redis = await RedisInstance.initRedis('setvalFun',0);
         // setex 需要带过期时间 s秒
         // set 通用
         // hmset 哈希列表
         // sunionstore 并集并保留结果
-        await redis.setex('tempCode:rayjcr',200,'6677');
+        // await redis.setex('tempCode:rayjcr',200,'6677');
         // await redis.set('tempCode', 'rayjcr');
         // await redis.hmset("hosts");
-        return '666'
+        // return '666'
     }
 
 }

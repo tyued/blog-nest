@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
-// import { DeptEntity } from 'src/entity/dept.entity'
+import { DeptEntity } from 'src/entity/dept.entity'
 // import { RedisModule } from 'nestjs-redis'
 
 // let options = {
@@ -28,12 +28,13 @@ import { LocalStrategy } from './local.strategy';
         PassportModule,
         JwtModule.register({
             secret: jwtConstants.secret,
-            signOptions: {expiresIn:'600s'}
+            signOptions: {expiresIn:'20s'}
         }),
-        TypeOrmModule.forFeature([UserEntity])
+        TypeOrmModule.forFeature([UserEntity,DeptEntity])
     ],
     controllers: [AuthController],
     providers: [AuthService,LocalStrategy,JwtStrategy],
+    exports: [AuthService]
 })
 
 

@@ -2,16 +2,16 @@ import { Column, JoinColumn, OneToMany, OneToOne, BaseEntity, PrimaryGeneratedCo
 import { UserEntity } from './user.entity'
 
 @Entity('dept')
-export class DeptEntity extends BaseEntity {
+export class DeptEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({type:'int'})
+    @Column({type:'int',select:false})
     num: number;
 
-    @Column({type:'varchar'})
-    name: string;   
+    @Column({type:'varchar',name:'deptName'})
+    name: string;
 
-    @OneToMany(type => UserEntity, user => user.deptInfo)
-    users: UserEntity[];
+    // @OneToMany(() => UserEntity, user => user.dept_id)
+    // users: [];
 }
