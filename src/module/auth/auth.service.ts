@@ -69,7 +69,7 @@ export class AuthService {
         user.user_name = param.username;
         user.user_password = param.password;
         user.create_time = new Date();
-        user.update_tiem = new Date();
+        user.update_time = new Date();
         let res = await this.userRepository.save(user);
         return {status:true,data:res};
     }
@@ -131,8 +131,8 @@ export class AuthService {
     async login(username: string): Promise<any> {
         const loginObj = {username: username}
         const token = this.jwtService.sign(loginObj)
-        const redis = await RedisInstance.initRedis('getCode',0);
-        await redis.setex('tempCode:'+username, 600, token);
+        // const redis = await RedisInstance.initRedis('getCode',0);
+        // await redis.setex('tempCode:'+username, 600, token);
         return {
             status: true,
             access_token: token

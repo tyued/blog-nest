@@ -32,7 +32,7 @@ export class UserEntity {
     create_time: Date;
 
     @Column({select:false})
-    update_tiem: Date;
+    update_time: Date;
 
     @Column({type:'int', default:1,select:false})
     deptId: number;

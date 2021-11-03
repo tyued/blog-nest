@@ -11,7 +11,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromHeader('token'),
-            ignoreExpiration: false,
+            ignoreExpiration: true,                    // 过期忽略
             secretOrKey: jwtConstants.secret,
         });
     }

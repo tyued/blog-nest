@@ -1,3 +1,4 @@
+import { ArticleModule } from './module/article/article.module';
 import { AuthModule } from './module/auth/auth.module';
 
 import { resolve } from 'path';
@@ -5,7 +6,7 @@ import { Module, CacheModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { ConfigModule,ConfigService} from 'nestjs-config';
+import { ConfigModule, ConfigService } from 'nestjs-config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -23,16 +24,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
     imports: [
+        ArticleModule,AuthModule,
         // 读取config 下所有的ts,js文件
-        ConfigModule.load(resolve(__dirname,'config','**/!(*.d).{ts,js}')),
+        ConfigModule.load(resolve(__dirname, 'config', '**/!(*.d).{ts,js}')),
         // 设置mailerModule的配置信息
         MailerModule.forRootAsync({
-            useFactory: (config:ConfigService) => config.get('email'),
+            useFactory: (config: ConfigService) => config.get('email'),
             inject: [ConfigService]
         }),
         TypeOrmModule.forRootAsync({
-            useFactory:(config:ConfigService) => config.get('database'),
-            inject: [ConfigService], 
+            useFactory: (config: ConfigService) => config.get('database'),
+            inject: [ConfigService],
         }),
         // 设置redis的配置信息
         // CacheModule.register(),
@@ -56,13 +58,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         //     password: '',
         //     db: 0
         // }),
-        AuthModule,],
-    controllers: [AppController],
-    providers: [AppService],
+        ],
+    controllers: [
+        AppController],
+    providers: [
+        AppService],
 })
 
 // let option = {
-    
+
 // }
 
-export class AppModule {}
+export class AppModule { }
