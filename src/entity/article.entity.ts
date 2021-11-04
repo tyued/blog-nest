@@ -12,7 +12,7 @@ export class ArticleEntity{
     @Column({type:'int'})
     authId: number;
 
-    @Column({type:'int'})
+    @Column({type:'int',default:-1})
     articleTypeId: number;
 
     @Column({type:'varchar'})
